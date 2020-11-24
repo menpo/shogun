@@ -1,0 +1,2 @@
+# shogun
+Opinionated Typed Configuration
