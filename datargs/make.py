@@ -48,11 +48,9 @@ import dataclasses
 
 # noinspection PyUnresolvedReferences,PyProtectedMember
 import inspect
-from abc import ABCMeta, abstractmethod
 from argparse import (
     ArgumentDefaultsHelpFormatter,
     ArgumentParser,
-    ArgumentTypeError,
 )
 from collections import deque
 from enum import Enum
@@ -60,8 +58,6 @@ from functools import partial
 from typing import (
     Any,
     Dict,
-    List,
-    Mapping,
     Optional,
     Sequence,
     Type,
@@ -70,159 +66,12 @@ from typing import (
     overload,
 )
 
+from datargs.dispatch import TypeRegistry
 from datargs.records.error import NotARecordClass
-from datargs.records.generic import DatargsParams, RecordClass, RecordField
-
-
-@dataclasses.dataclass()
-class Action:
-    aliases: Sequence[str] = dataclasses.field(default_factory=list)
-    kwargs: Mapping[str, Any] = dataclasses.field(default_factory=dict)
-
-
-def field_name_to_arg_name(name: str, underscore_to_hyphen: bool = True) -> str:
-    return f"--{name.replace('_', '-') if underscore_to_hyphen else name}"
-
-
-class TypeDispatch:
-    # Intentionally static
-    dispatch: List["DispatcherBase"] = []
-
-    @classmethod
-    def build_actions(cls, field: RecordField) -> Sequence[Action]:
-        for dispatcher in cls.dispatch:
-            if dispatcher.is_type(field.type):
-                return dispatcher.build_actions(field)
-        return (add_default(field),)
-
-    @classmethod
-    def register(cls, dispatcher_type: Type["DispatcherBase"]):
-        cls.dispatch.append(dispatcher_type())
-
-
-class DispatcherBase(metaclass=ABCMeta):
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if not inspect.isabstract(cls):
-            TypeDispatch.register(cls)
-
-    @abstractmethod
-    def is_type(self, field_type: type) -> bool:
-        ...
-
-    @abstractmethod
-    def build_actions(self, field: RecordField) -> Sequence[Action]:
-        ...
-
-
-class DispatcherIsSubclass(DispatcherBase):
-    type_: type
-
-    @abstractmethod
-    def build_action(self, field: RecordField) -> Action:
-        ...
-
-    def is_type(self, field_type: type) -> bool:
-        return issubclass(field_type, self.type_)
-
-    def build_actions(self, field: RecordField) -> Sequence[Action]:
-        return (self.build_action(field),)
-
-
-def get_arg_alias_list(name: str, field: RecordField) -> List[str]:
-    return [name, *field.metadata.get("aliases", [])]
-
-
-def common_kwargs(field: RecordField):
-    return {"type": field.type, **filter_dict(field.metadata, {"aliases"})}
-
-
-def filter_dict(dct, remove_keys):
-    return {key: value for key, value in dct.items() if key not in remove_keys}
-
-
-def add_default(field: RecordField, **kwargs) -> Action:
-    kwargs = {
-        "default": field.default,
-        "required": field.is_required(),
-        **common_kwargs(field),
-        **kwargs,
-    }
-    return Action(
-        aliases=get_arg_alias_list(field_name_to_arg_name(field.name), field),
-        kwargs=kwargs,
-    )
-
+from datargs.records.generic import DatargsParams, RecordClass
+from datargs.utils import remove_dict_nones
 
 T = TypeVar("T")
-
-
-class DispatcherIsDataclass(DispatcherBase):
-    def is_type(self, field_type: type) -> bool:
-        return dataclasses.is_dataclass(field_type)
-
-    def _add_prefix(self, prefix: str, aliases: Sequence[str]) -> Sequence[str]:
-        new_aliases = []
-        for alias in aliases:
-            assert alias[:2] == "--"
-            new_alias = f"--{prefix}-{alias[2:]}"
-            new_aliases.append(new_alias)
-        return new_aliases
-
-    def build_actions(self, field: RecordField) -> Sequence[Action]:
-        # TODO: Make this configurable
-        prefix = field.name.replace("_", "-")
-
-        actions = []
-        record_class = RecordClass.wrap_class(field.type)
-        for sub_field in record_class.fields_dict().values():
-            sub_actions = TypeDispatch.build_actions(sub_field)
-
-            for s_a in sub_actions:
-                s_a.aliases = self._add_prefix(prefix, s_a.aliases)
-
-            actions.extend(sub_actions)
-
-        return actions
-
-
-class DispatcherBool(DispatcherIsSubclass):
-    type_ = bool
-
-    def build_action(self, field: RecordField) -> Action:
-        kwargs = {
-            **filter_dict(common_kwargs(field), {"type"}),
-            "action": "store_false"
-            if field.default and field.has_default()
-            else "store_true",
-        }
-        return Action(
-            aliases=get_arg_alias_list(
-                field_name_to_arg_name(field.name),
-                field,
-            ),
-            kwargs=kwargs,
-        )
-
-
-class DispatcherEnum(DispatcherIsSubclass):
-    type_ = Enum
-
-    def build_action(self, field: RecordField) -> Action:
-        def enum_type_func(value: str):
-            result = field.type.__members__.get(value)
-            if not result:
-                raise ArgumentTypeError(
-                    f"invalid choice: {value!r} (choose from {[e.name for e in field.type]})"
-                )
-            return result
-
-        return add_default(
-            field,
-            type=enum_type_func,
-            choices=field.type,
-            metavar=f"{{{','.join(field.type.__members__)}}}",
-        )
 
 
 def build_record_instance_from_parsed_args(
@@ -307,7 +156,7 @@ def _make_parser(record_class: RecordClass, parser: ParserType = None) -> Parser
         #       into the dispatcher
         group = parser
 
-        actions = TypeDispatch.build_actions(field)
+        actions = TypeRegistry.build_actions(field)
         if len(actions) > 1:
             group = parser.add_argument_group(
                 description=record_class.datargs_params.parser.get("description")
@@ -448,7 +297,3 @@ def arg(
         default=default,
         **kwargs,
     )
-
-
-def remove_dict_nones(dct: dict) -> dict:
-    return {key: value for key, value in dct.items() if value is not None}
