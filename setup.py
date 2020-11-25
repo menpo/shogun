@@ -47,6 +47,7 @@ setup(
         "pytest>=5.0",
         "pytest-mock>=1.0",
         "pytest-black>=0.3",
+        "pytest-cov>=2.0",
         "black>=20.0",
     ],
     classifiers=[
