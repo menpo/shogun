@@ -452,18 +452,3 @@ def arg(
 
 def remove_dict_nones(dct: dict) -> dict:
     return {key: value for key, value in dct.items() if value is not None}
-
-
-if __name__ == "__main__":
-    import doctest
-
-    OC = doctest.OutputChecker
-
-    class AEOutputChecker(OC):
-        def check_output(self, want, got, optionflags):
-            if optionflags & doctest.ELLIPSIS:
-                want = want.replace("[...]", doctest.ELLIPSIS_MARKER)
-            return super().check_output(want, got, optionflags)
-
-    doctest.OutputChecker = AEOutputChecker
-    doctest.testmod(optionflags=doctest.REPORT_NDIFF)
