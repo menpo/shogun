@@ -58,12 +58,12 @@ from functools import partial
 from typing import (
     Any,
     Dict,
+    Mapping,
     Optional,
     Sequence,
     Type,
     TypeVar,
     get_type_hints,
-    overload,
 )
 
 from datargs.dispatch import TypeRegistry
@@ -104,25 +104,7 @@ def build_record_instance_from_parsed_args(
     return record_class.cls(**unpacked)
 
 
-ParserType = TypeVar("ParserType", bound=ArgumentParser)
-
-
-@overload
-def make_parser(cls: type) -> ArgumentParser:
-    pass
-
-
-@overload
-def make_parser(cls: type, parser: None = None) -> ArgumentParser:
-    pass
-
-
-@overload
-def make_parser(cls: type, parser: ParserType) -> ParserType:
-    pass
-
-
-def make_parser(cls, parser=None):
+def make_parser(cls, parser: Optional[ArgumentParser] = None) -> ArgumentParser:
     # noinspection PyShadowingNames
     """
     Create parser that parses command-line arguments according to the fields of `cls`.
@@ -132,7 +114,7 @@ def make_parser(cls, parser=None):
     :param parser: parser to add arguments to, by default creates a new parser
     :return: instance of `parser_cls` which parses command line according to `cls`
 
-    >>> @dataclass
+    >>> @dataclasses.dataclass
     ... class Args:
     ...     first_arg: int
     >>> parse(Args, ["--first-arg", "0"])
@@ -147,28 +129,27 @@ def make_parser(cls, parser=None):
     return _make_parser(record_class, parser=parser)
 
 
-def _make_parser(record_class: RecordClass, parser: ParserType = None) -> ParserType:
-    if not parser:
+def _make_parser(
+    record_class: RecordClass, parser: Optional[ArgumentParser] = None
+) -> ArgumentParser:
+    if parser is None:
         parser = ArgumentParser(**record_class.parser_params)
 
     for name, field in record_class.fields_dict().items():
-        # TODO: Use the correct description - need to push creating the arguments
-        #       into the dispatcher
-        group = parser
-
+        # TODO: Add argument groups for dataclasses (as they are nested)
         actions = TypeRegistry.build_actions(field)
-        if len(actions) > 1:
-            group = parser.add_argument_group(
-                description=record_class.datargs_params.parser.get("description")
-            )
-
         for action in actions:
-            group.add_argument(*action.aliases, **action.kwargs)
+            parser.add_argument(*action.aliases, **action.kwargs)
 
     return parser
 
 
-def parse(cls: Type[T], args: Optional[Sequence[str]] = None, *, parser=None) -> T:
+def parse(
+    cls: Type[T],
+    args: Optional[Sequence[str]] = None,
+    *,
+    parser: Optional[ArgumentParser] = None,
+) -> T:
     """
     Parse command line arguments according to the fields of `cls` and populate it.
     Accepts classes decorated with `dataclass` or `attr.s`.
@@ -177,7 +158,7 @@ def parse(cls: Type[T], args: Optional[Sequence[str]] = None, *, parser=None) ->
     :param args: arguments to parse (default: `sys.arg`)
     :return: an instance of cls
 
-    >>> @dataclass
+    >>> @dataclasses.dataclass
     ... class Args:
     ...     is_flag: bool
     ...     num: int = 0
@@ -189,21 +170,18 @@ def parse(cls: Type[T], args: Optional[Sequence[str]] = None, *, parser=None) ->
 
 
 def argsclass(
-    cls: type = None,
-    *args,
-    description: str = None,
-    parser_params: Dict[str, Any] = None,
-    **kwargs,
+    cls: Optional[type] = None,
+    *args: Any,
+    description: Optional[str] = None,
+    parser_params: Optional[Dict[str, Any]] = None,
+    **kwargs: Any,
 ):
     """
     A wrapper around `dataclass` for passing `description` and other params (in `parser_params`)
     to the `ArgumentParser` constructor.
     """
     parser_params = parser_params or {}
-    datargs_kwargs = {
-        "description": description,
-        "parser_params": parser_params,
-    }
+    parser_params.setdefault("description", description)
     parser_params.setdefault("formatter_class", ArgumentDefaultsHelpFormatter)
 
     if cls is None:
@@ -211,24 +189,23 @@ def argsclass(
         return partial(
             make_class,
             *args,
-            **datargs_kwargs,
+            parser_params=parser_params,
             **kwargs,
         )
 
     return make_class(
         cls,
         *args,
-        **datargs_kwargs,
+        parser_params=parser_params,
         **kwargs,
     )
 
 
 def make_class(
     cls,
-    description: str = None,
-    parser_params: dict = None,
-    *args,
-    **kwargs,
+    *args: Any,
+    parser_params: Optional[Mapping[str, Any]] = None,
+    **kwargs: Any,
 ):
     try:
         RecordClass.wrap_class(cls)
@@ -246,7 +223,7 @@ def make_class(
     else:
         new_cls = cls
     new_cls.__datargs_params__ = DatargsParams(
-        parser={"description": description, **(parser_params or {})},
+        parser=parser_params,
     )
     return new_cls
 
@@ -265,7 +242,7 @@ def arg(
     """
     Helper method to more easily add parsing-related behavior.
     Supports aliases:
-    >>> @dataclass
+    >>> @dataclasses.dataclass
     ... class Args:
     ...     num: int = arg(aliases=["-n"])
     >>> parse(Args, ["--num", "0"])
@@ -274,7 +251,7 @@ def arg(
     Args(num=0)
 
     Accepts all arguments to both `ArgumentParser.add_argument` and `dataclass.field`:
-    >>> @dataclass
+    >>> @dataclasses.dataclass
     ... class Args:
     ...     invisible_arg: int = arg(default=0, repr=False, metavar="MY_ARG", help="argument description")
     >>> print(Args())
