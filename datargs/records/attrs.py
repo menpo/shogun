@@ -1,4 +1,4 @@
-from . import RecordClass, RecordField
+from .generic import RecordClass, RecordField
 
 try:
     import attr

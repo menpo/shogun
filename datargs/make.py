@@ -70,7 +70,8 @@ from typing import (
     overload,
 )
 
-from .records import DatargsParams, NotARecordClass, RecordClass, RecordField
+from datargs.records.error import NotARecordClass
+from datargs.records.generic import DatargsParams, RecordClass, RecordField
 
 
 @dataclasses.dataclass()
