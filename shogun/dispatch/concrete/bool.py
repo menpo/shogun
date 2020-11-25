@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 
 from ...argparse_.utils import common_kwargs
 from ...utils import filter_dict
-from datargs.argparse_.action import FieldAction
+from shogun.argparse_.action import FieldAction
 from ..base import DispatcherIsSubclass
 
 if TYPE_CHECKING:
-    from datargs.records.generic import RecordField
+    from shogun.records.generic import RecordField
 
 
 class DispatcherBool(DispatcherIsSubclass):

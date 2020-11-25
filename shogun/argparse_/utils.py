@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from datargs.utils import filter_dict
+from shogun.utils import filter_dict
 
 if TYPE_CHECKING:
-    from datargs.records.generic import RecordField
+    from shogun.records.generic import RecordField
 
 
 def field_name_to_arg_name(name: str, underscore_to_hyphen: bool = True) -> str:

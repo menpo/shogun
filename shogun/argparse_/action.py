@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Any, List, Mapping, Sequence
 
-from datargs.records.generic import RecordField
+from shogun.records.generic import RecordField
 from .utils import field_name_to_arg_name
 
 

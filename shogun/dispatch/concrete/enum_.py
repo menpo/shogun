@@ -2,12 +2,12 @@ from argparse import ArgumentTypeError
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from datargs.argparse_.action import FieldAction
-from datargs.dispatch.base import DispatcherIsSubclass
-from datargs.dispatch.default import DispatcherDefault
+from shogun.argparse_.action import FieldAction
+from shogun.dispatch.base import DispatcherIsSubclass
+from shogun.dispatch.default import DispatcherDefault
 
 if TYPE_CHECKING:
-    from datargs.records.generic import RecordField
+    from shogun.records.generic import RecordField
 
 
 class DispatcherEnum(DispatcherIsSubclass):

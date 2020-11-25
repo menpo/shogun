@@ -1,10 +1,10 @@
 import dataclasses
 from typing import List, Sequence
 
-from datargs.dispatch.base import DispatcherBase
-from datargs.dispatch.registry import TypeRegistry
-from datargs.argparse_.action import FieldAction
-from datargs.records.generic import RecordClass, RecordField
+from shogun.dispatch.base import DispatcherBase
+from shogun.dispatch.registry import TypeRegistry
+from shogun.argparse_.action import FieldAction
+from shogun.records.generic import RecordClass, RecordField
 
 
 class DispatcherIsDataclass(DispatcherBase):

@@ -1,10 +1,10 @@
 from typing import Any, TYPE_CHECKING
 
-from datargs.argparse_.action import FieldAction
-from datargs.argparse_.utils import common_kwargs
+from shogun.argparse_.action import FieldAction
+from shogun.argparse_.utils import common_kwargs
 
 if TYPE_CHECKING:
-    from datargs.records.generic import RecordField
+    from shogun.records.generic import RecordField
 
 
 # Note this doesn't inherit from the dispatch base because we don't want to

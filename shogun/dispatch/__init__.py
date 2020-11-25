@@ -1,2 +1,2 @@
-import datargs.dispatch.concrete
+import shogun.dispatch.concrete
 from .registry import TypeRegistry
