@@ -2,9 +2,9 @@ import inspect
 from abc import ABCMeta, abstractmethod
 from typing import Sequence
 
-from datargs.dispatch.registry import TypeRegistry
-from datargs.argparse_.action import FieldAction
-from datargs.records.generic import RecordField
+from shogun.dispatch.registry import TypeRegistry
+from shogun.argparse_.action import FieldAction
+from shogun.records.generic import RecordField
 
 
 class DispatcherBase(metaclass=ABCMeta):

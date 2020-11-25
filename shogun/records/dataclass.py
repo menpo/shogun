@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Mapping
 
-from datargs.records.generic import FieldType, RecordClass, RecordField
+from shogun.records.generic import FieldType, RecordClass, RecordField
 
 
 class DataField(RecordField[dataclasses.Field]):

@@ -1,10 +1,10 @@
 from typing import List, Sequence, TYPE_CHECKING, Type
 
-from datargs.argparse_.action import FieldAction
+from shogun.argparse_.action import FieldAction
 from .default import DispatcherDefault
 
 if TYPE_CHECKING:
-    from datargs.records.generic import RecordField
+    from shogun.records.generic import RecordField
     from .base import DispatcherBase
 
 

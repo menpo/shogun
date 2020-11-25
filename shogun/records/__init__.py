@@ -2,9 +2,9 @@
 # under the MIT license - maintained in this repository at LICENSE-datargs
 
 # import classes to register it in RecordClass._implementors
-import datargs.records.dataclass
+import shogun.records.dataclass
 
 try:
-    import datargs.records.attrs
+    import shogun.records.attrs
 except ImportError:
     pass

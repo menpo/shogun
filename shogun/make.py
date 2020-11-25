@@ -66,10 +66,10 @@ from typing import (
     get_type_hints,
 )
 
-from datargs.dispatch import TypeRegistry
-from datargs.records.error import NotARecordClass
-from datargs.records.generic import DatargsParams, RecordClass
-from datargs.utils import remove_dict_nones
+from shogun.dispatch import TypeRegistry
+from shogun.records.error import NotARecordClass
+from shogun.records.generic import DatargsParams, RecordClass
+from shogun.utils import remove_dict_nones
 
 T = TypeVar("T")
 
