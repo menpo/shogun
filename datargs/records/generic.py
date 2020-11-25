@@ -1,6 +1,6 @@
 import inspect
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, Generic, Mapping, Optional, Type, TypeVar
+from typing import Any, Generic, List, Mapping, Optional, Type, TypeVar
 
 from .error import NotARecordClass
 
@@ -8,7 +8,7 @@ FieldType = TypeVar("FieldType")
 
 
 class DatargsParams:
-    def __init__(self, parser: Optional[Dict[str, Any]] = None):
+    def __init__(self, parser: Optional[Mapping[str, Any]] = None):
         self.parser = parser or {}
 
 
@@ -67,7 +67,7 @@ class RecordClass(Generic[FieldType], metaclass=ABCMeta):
 
     # The type to wrap fields with
     field_wrapper_type: Type[RecordField]
-    _implementors = []
+    _implementors: List[Type["RecordClass"]] = []
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__()

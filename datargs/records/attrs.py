@@ -15,6 +15,7 @@ else:
         field_wrapper_type = AttrField
 
         def fields_dict(self):
+            assert attr.has(self.cls)
             return {
                 name: self.get_field(field)
                 for name, field in attr.fields_dict(self.cls).items()

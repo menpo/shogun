@@ -22,5 +22,6 @@ class DataClass(RecordClass[dataclasses.Field]):
     field_wrapper_type = DataField
 
     def fields_dict(self) -> Mapping[str, FieldType]:
+        assert dataclasses.is_dataclass(self.cls)
         fields = dataclasses.fields(self.cls)
         return {field.name: self.get_field(field) for field in fields}
