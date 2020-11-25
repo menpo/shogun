@@ -1,15 +1,14 @@
-
-from . import RecordField, RecordClass
+from . import RecordClass, RecordField
 
 try:
     import attr
 except ImportError:
     pass
 else:
+
     class AttrField(RecordField[attr.Attribute]):
         def is_required(self) -> bool:
             return self.field.default is attr.NOTHING
-
 
     class AttrClass(RecordClass[attr.Attribute]):
         fields_attribute = "__attrs_attrs__"
