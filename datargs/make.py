@@ -70,7 +70,7 @@ from typing import (
     overload,
 )
 
-from .compat import DatargsParams, NotARecordClass, RecordClass, RecordField
+from .records import DatargsParams, NotARecordClass, RecordClass, RecordField
 
 
 @dataclasses.dataclass()

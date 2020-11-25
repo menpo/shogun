@@ -165,4 +165,4 @@ except ImportError:
     pass
 else:
     # import class to register it in RecordClass._implementors
-    import datargs.compat.attrs
+    import datargs.records.attrs
