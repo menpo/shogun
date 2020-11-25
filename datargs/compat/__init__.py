@@ -3,11 +3,10 @@
 """
 Module for uniform treatment of dataclasses and attrs classes.
 """
-from abc import abstractmethod
-from typing import TypeVar, Generic, Mapping, Type
-
 import dataclasses
+from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Generic, Mapping, Type, TypeVar
 
 from datargs.meta import AbstractClassProperty
 
