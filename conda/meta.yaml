@@ -1,0 +1,49 @@
+
+package:
+  name: shogun
+  version: {{ environ['CONDACI_VERSION'] }}
+
+source:
+  path: ../
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt && python setup.py sdist
+
+requirements:
+  host:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - dataclasses  # [py<=36]
+
+test:
+  requires:
+  - pytest
+  - pytest-black
+  - pytest-cov
+  - pytest-mock
+
+  files:
+    - mypy.ini
+
+  imports:
+    - menpo
+
+  commands:
+    # This is crazy but we need to work around https://github.com/python/mypy/issues/8567
+    # which we do by basically soft linking the output packages into a temporary directory
+    # to avoid the mypy site packages check
+    - rm -fr /tmp/shogun && ln -s $SP_DIR/shogun /tmp/shogun
+    - pytest /tmp/shogun --mypy --black -v --cov=shogun
+
+about:
+  home: https://github.com/menpo/shogun
+  license: BSD
+  summary: Opinionated Typed Configuration
+  description: |
+    Opinionated Typed Configuration
+  doc_url: https://github.com/menpo/shogun
+  dev_url: https://github.com/menpo/shogun
