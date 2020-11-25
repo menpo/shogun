@@ -131,7 +131,7 @@ def get_option_strings(name: str, field: RecordField):
 
 
 def common_kwargs(field: RecordField):
-    return {"type": field.type, **subdict(field.metadata, ["aliases", "positional"])}
+    return {"type": field.type, **subdict(field.metadata, {"aliases"})}
 
 
 def subdict(dct, remove_keys):
@@ -141,11 +141,10 @@ def subdict(dct, remove_keys):
 def add_default(name, field: RecordField, **kwargs) -> Action:
     kwargs = {
         "default": field.default,
+        "field": field.is_required(),
         **common_kwargs(field),
         **kwargs,
     }
-    if not field.is_positional:
-        kwargs["required"] = field.is_required()
     return Action(kwargs=kwargs, args=get_option_strings(name, field))
 
 
@@ -331,7 +330,6 @@ def make_class(
 
 # noinspection PyShadowingBuiltins
 def arg(
-    positional=False,
     nargs=None,
     const=None,
     default=MISSING,
@@ -371,7 +369,6 @@ def arg(
                 help=help,
                 metavar=metavar,
                 aliases=aliases,
-                positional=positional,
             )
         ),
         default=default,

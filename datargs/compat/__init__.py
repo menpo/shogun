@@ -61,7 +61,7 @@ class RecordField(Generic[FieldType]):
 
     @property
     def is_positional(self) -> bool:
-        return self.metadata.get("positional", False)
+        return False
 
 
 class DataField(RecordField[dataclasses.Field]):
