@@ -1,3 +1,5 @@
+# Initial implementation courtesy of https://github.com/roee30/datargs
+# under the MIT license - maintained in this repository at LICENSE-datargs
 # noinspection PyUnresolvedReferences
 """
 Declerative, type safe `argparse` parsers.
@@ -232,74 +234,14 @@ def make_parser(cls, parser=None):
     return _make_parser(record_class, parser=parser)
 
 
-class DatargsSubparsers(_SubParsersAction):
-    """
-    A subparsers action that creates the correct sub-command class upon parsing.
-    """
-
-    def __init__(self, name, *args, **kwargs):
-        self.__name = name
-        super().__init__(*args, **kwargs)
-        self._command_type_map = {}
-
-    def add_parser(self, typ: type, name: str, *args, **kwargs):
-        result = super().add_parser(name, *args, **kwargs)
-        self._command_type_map[name] = typ
-        return result
-
-    def __call__(self, parser, namespace, values, *args, **kwargs):
-        new_ns = Namespace()
-        name, *_ = values
-        super().__call__(parser, new_ns, values)
-        setattr(namespace, self.__name, self._command_type_map[name](**vars(new_ns)))
-
-
 def _make_parser(record_class: RecordClass, parser: ParserType = None) -> ParserType:
     if not parser:
         parser = ArgumentParser(**record_class.parser_params)
     assert parser is not None
     for name, field in record_class.fields_dict().items():
-        sub_commands = None
-        try:
-            if field.type.__origin__ is Union:
-                sub_commands = field.type.__args__
-        except AttributeError:
-            pass
-        if sub_commands is not None:
-            add_subparsers(parser, record_class, field, sub_commands)
-        else:
-            action = TypeDispatch.add_arg(field)
-            parser.add_argument(*action.args, **action.kwargs)
+        action = TypeDispatch.add_arg(field)
+        parser.add_argument(*action.args, **action.kwargs)
     return parser
-
-
-def add_subparsers(
-    parser: ArgumentParser,
-    top_class: RecordClass,
-    sub_parsers_field: RecordField,
-    sub_parser_classes: Sequence[type],
-):
-    # noinspection PyArgumentList
-    subparsers = cast(
-        DatargsSubparsers,
-        parser.add_subparsers(
-            **top_class.sub_commands_params,
-            action=DatargsSubparsers,
-            name=sub_parsers_field.name,
-        ),
-    )
-    for command in sub_parser_classes:
-        try:
-            sub_parsers_args = top_class.wrap_class(command)
-        except NotARecordClass:
-            raise Exception(
-                f"{top_class.name}.{sub_parsers_field.name}: "
-                f"Union must be used with dataclass/attrs class and creates a subparser (got: {sub_parsers_field.type})"
-            )
-        sub_parser = subparsers.add_parser(
-            command, sub_parsers_args.name.lower(), **sub_parsers_args.parser_params
-        )
-        _make_parser(sub_parsers_args, sub_parser)
 
 
 def parse(cls: Type[T], args: Optional[Sequence[str]] = None, *, parser=None) -> T:
@@ -340,11 +282,10 @@ def argsclass(
     A wrapper around `dataclass` for passing `description` and other params (in `parser_params`)
     to the `ArgumentParser` constructor.
     """
-    # sub_commands_params has been disabled until a useful use case is found
+    parser_params = parser_params or {}
     datargs_kwargs = {
         "description": description,
         "parser_params": parser_params,
-        "sub_commands_params": {},
     }
     if cls is None:
         # We're called with parens.
@@ -367,7 +308,6 @@ def make_class(
     cls,
     description: str = None,
     parser_params: dict = None,
-    sub_commands_params: dict = None,
     *args,
     **kwargs,
 ):
@@ -385,7 +325,6 @@ def make_class(
         new_cls = cls
     new_cls.__datargs_params__ = DatargsParams(
         parser={"description": description, **(parser_params or {})},
-        sub_commands=sub_commands_params or {},
     )
     return new_cls
 

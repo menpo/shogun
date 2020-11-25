@@ -1,3 +1,5 @@
+# Initial implementation courtesy of https://github.com/roee30/datargs
+# under the MIT license - maintained in this repository at LICENSE-datargs
 """
 Module for uniform treatment of dataclasses and attrs classes.
 """
@@ -15,7 +17,6 @@ FieldType = TypeVar("FieldType")
 @dataclass
 class DatargsParams:
     parser: dict = dataclasses.field(default_factory=dict)
-    sub_commands: dict = dataclasses.field(default_factory=dict)
 
 
 class RecordField(Generic[FieldType]):
@@ -103,10 +104,6 @@ class RecordClass(Generic[FieldType]):
     @property
     def parser_params(self):
         return self.datargs_params.parser
-
-    @property
-    def sub_commands_params(self):
-        return self.datargs_params.sub_commands
 
     @property
     def name(self):
