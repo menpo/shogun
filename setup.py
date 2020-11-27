@@ -3,7 +3,7 @@ from distutils.version import StrictVersion
 
 from setuptools import find_packages, setup
 
-PY_VER = StrictVersion(f"{sys.version_info.major}.{sys.version_info.major}")
+PY_VER = StrictVersion(f"{sys.version_info.major}.{sys.version_info.minor}")
 
 
 def get_version_and_cmdclass(package_path):
