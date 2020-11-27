@@ -14,7 +14,7 @@ def get_version_and_cmdclass(package_path):
     from importlib.util import module_from_spec, spec_from_file_location
 
     spec = spec_from_file_location(
-        "version", os.path.join(package_path, "shogun/_version.py")
+        "version", os.path.join(package_path, "_version.py")
     )
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
