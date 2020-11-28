@@ -10,7 +10,6 @@ workflows:
       - linux_python_3.9
 
 template: &linux_template
-  context: menpo
   environment:
     PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
   docker:
@@ -30,6 +29,7 @@ template: &linux_template
 jobs:
   linux_python_3.6:
     <<: *linux_template
+    context: menpo
     environment:
       PYTHON_VERSION: 3.6
   linux_python_3.7:
