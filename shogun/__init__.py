@@ -4,6 +4,6 @@
 from ._version import __version__
 from .argparse_.args import arg
 from .argparse_.argsclass import argsclass
-from .argparse_.parse import parse
+from .argparse_.parse import make_parser, parse
 
-__all__ = ["arg", "argsclass", "parse", "__version__"]
+__all__ = ["arg", "argsclass", "make_parser", "parse", "__version__"]
