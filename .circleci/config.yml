@@ -10,6 +10,9 @@ workflows:
       - linux_python_3.9
 
 template: &linux_template
+  context: menpo
+  environment:
+    PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
   docker:
     - image: circleci/python:latest
   steps:
