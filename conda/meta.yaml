@@ -21,16 +21,19 @@ requirements:
 
 test:
   requires:
-  - pytest
-  - pytest-black
-  - pytest-cov
-  - pytest-mock
+    - attrs>=20
+    - pytest
+    - pytest-black
+    - pytest-cov
+    - pytest-mock
+    - pytest-mypy
 
   files:
     - mypy.ini
+    - pyproject.toml
 
   imports:
-    - menpo
+    - shogun
 
   commands:
     # This is crazy but we need to work around https://github.com/python/mypy/issues/8567

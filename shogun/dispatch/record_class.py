@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Sequence
 
 from shogun.argparse_.action import FieldAction
@@ -5,7 +6,7 @@ from shogun.dispatch.base import DispatcherBase
 from shogun.records.generic import RecordClass, RecordField
 
 
-class DispatcherIsRecordClass(DispatcherBase):
+class DispatcherIsRecordClass(DispatcherBase, ABC):
     @classmethod
     def build_actions(cls, field: RecordField) -> Sequence[FieldAction]:
         # Avoid circular import
