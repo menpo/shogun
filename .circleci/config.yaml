@@ -1,0 +1,45 @@
+version: 2
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - linux_python_3.6
+      - linux_python_3.7
+      - linux_python_3.8
+      - linux_python_3.9
+
+template: &linux_template
+  docker:
+    - image: ubuntu:bionic
+  steps:
+    - checkout
+    - run:
+        name: Setup Miniconda
+        command: |
+          apt update
+          apt install -y wget
+          wget https://raw.githubusercontent.com/menpo/condaci/v0.5.x/condaci.py -O condaci.py
+          python condaci.py setup --channels conda-forge
+    - run:
+        name: Run conda build
+        command: |
+          ~/miniconda/bin/python condaci.py build ./conda
+
+jobs:
+  linux_python_3.6:
+    <<: *linux_template
+    environment:
+      PYTHON_VERSION: 3.6
+  linux_python_3.7:
+    <<: *linux_template
+    environment:
+      PYTHON_VERSION: 3.7
+  linux_python_3.8:
+    <<: *linux_template
+    environment:
+      PYTHON_VERSION: 3.8
+  linux_python_3.9:
+    <<: *linux_template
+    environment:
+      PYTHON_VERSION: 3.9
