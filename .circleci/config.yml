@@ -11,14 +11,12 @@ workflows:
 
 template: &linux_template
   docker:
-    - image: ubuntu:bionic
+    - image: circleci/python:latest
   steps:
     - checkout
     - run:
         name: Setup Miniconda
         command: |
-          apt update
-          apt install -y wget
           wget https://raw.githubusercontent.com/menpo/condaci/v0.5.x/condaci.py -O condaci.py
           python condaci.py setup --channels conda-forge
     - run:
