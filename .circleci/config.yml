@@ -4,10 +4,18 @@ workflows:
   version: 2
   test:
     jobs:
-      - linux_python_3.6
-      - linux_python_3.7
-      - linux_python_3.8
-      - linux_python_3.9
+      - linux_python_3.6:
+          context:
+            - menpo
+      - linux_python_3.7:
+          context:
+            - menpo
+      - linux_python_3.8:
+          context:
+            - menpo
+      - linux_python_3.9:
+          context:
+            - menpo
 
 template: &linux_template
   environment:
@@ -29,7 +37,6 @@ template: &linux_template
 jobs:
   linux_python_3.6:
     <<: *linux_template
-    context: menpo
     environment:
       PYTHON_VERSION: 3.6
   linux_python_3.7:
