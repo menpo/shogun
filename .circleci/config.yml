@@ -20,7 +20,7 @@ template: &linux_template
     - run:
         name: Setup Miniconda
         command: |
-          wget https://raw.githubusercontent.com/menpo/condaci/v0.5.x/condaci.py -O condaci.py
+          wget https://raw.githubusercontent.com/menpo/condaci/circleci/condaci.py -O condaci.py
           python condaci.py setup --channels conda-forge
     - run:
         name: Run conda build
