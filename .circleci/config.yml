@@ -18,8 +18,6 @@ workflows:
             - menpo
 
 template: &linux_template
-  environment:
-    PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
   docker:
     - image: circleci/python:latest
   steps:
@@ -38,16 +36,20 @@ jobs:
   linux_python_3.6:
     <<: *linux_template
     environment:
+      PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
       PYTHON_VERSION: 3.6
   linux_python_3.7:
     <<: *linux_template
     environment:
+      PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
       PYTHON_VERSION: 3.7
   linux_python_3.8:
     <<: *linux_template
     environment:
+      PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
       PYTHON_VERSION: 3.8
   linux_python_3.9:
     <<: *linux_template
     environment:
+      PYPI_SDIST_UPLOAD_PYTHON_VERSION: 3.9
       PYTHON_VERSION: 3.9
