@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from collections import deque
+from collections import OrderedDict, deque
 from typing import Any, Dict, Optional, Sequence, Type, TypeVar
 
 from shogun.dispatch import TypeRegistry
@@ -12,7 +12,7 @@ def build_record_instance_from_parsed_args(
     record_class: RecordClass, args: Dict[str, Any]
 ):
     # New dictionary of args guaranteed to iterate by sorted key
-    args = {k: v for k, v in sorted(args.items())}
+    args = OrderedDict({k: v for k, v in sorted(args.items())})
     unpacked = {}
     for field_name, field in sorted(record_class.fields_dict().items()):
         for arg_name in list(args):
