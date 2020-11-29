@@ -5,11 +5,13 @@ import uuid
 from contextlib import ExitStack as nullcontext
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Sequence
 
 import attr
 import pytest
+from typing_extensions import Literal
 
-from shogun import argsclass, make_parser
+from shogun import arg, argsclass, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
 from shogun.tests.utils import _test_parse
@@ -167,6 +169,105 @@ def test_dataclass_enum(factory):
     assert args.arg == TestEnum.a
     args = _test_parse(TestEnumOptional, [])
     assert args.arg == TestEnum.b
+
+
+def test_dataclass_literal(factory):
+    @factory
+    class TestLiteralRequired:
+        arg: Literal["r", "b"]
+
+    with pytest.raises(ParserError):
+        _test_parse(TestLiteralRequired, [])
+
+    value = "r"
+    args = _test_parse(TestLiteralRequired, ["--arg", value])
+    assert args.arg == value
+
+    @factory
+    class TestLiteralOptional:
+        arg: Literal["r", "b"] = value
+
+    args = _test_parse(TestLiteralOptional, ["--arg", "b"])
+    assert args.arg == "b"
+
+    args = _test_parse(TestLiteralOptional, [])
+    assert args.arg == value
+
+    with pytest.raises(ParserError):
+        _test_parse(TestLiteralRequired, ["--arg", "c"])
+
+
+def test_dataclass_generic():
+    def split_comma(x):
+        return x.split(",")
+
+    @dataclass
+    class TestGenericRequired:
+        items: Sequence[str] = arg(converter=split_comma)
+
+    with pytest.raises(ParserError):
+        _test_parse(TestGenericRequired, [])
+
+    args = _test_parse(TestGenericRequired, ["--items", "1,2,3"])
+    assert args.items == ["1", "2", "3"]
+
+    @dataclass
+    class TestGenericOptionalFactory:
+        items: Sequence[str] = arg(default_factory=list, converter=split_comma)
+
+    args = _test_parse(TestGenericOptionalFactory, ["--items", "1,2,3"])
+    assert args.items == ["1", "2", "3"]
+
+    args = _test_parse(TestGenericOptionalFactory, [])
+    assert args.items == []
+
+    @dataclass
+    class TestGenericOptionalDefault:
+        items: Sequence[str] = arg(default="1,2,3", converter=split_comma)
+
+    args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
+    assert args.items == ["4", "5", "6"]
+
+    args = _test_parse(TestGenericOptionalFactory, [])
+    assert args.items == []
+
+
+def test_attrs_generic():
+    def split_comma(x):
+        if isinstance(x, str):
+            return x.split(",")
+        else:
+            return x
+
+    @attr.s(auto_attribs=True)
+    class TestGenericRequired:
+        items: Sequence[str] = attr.ib(converter=split_comma)
+
+    with pytest.raises(ParserError):
+        _test_parse(TestGenericRequired, [])
+
+    args = _test_parse(TestGenericRequired, ["--items", "1,2,3"])
+    assert args.items == ["1", "2", "3"]
+
+    @attr.s(auto_attribs=True)
+    class TestGenericOptionalFactory:
+        items: Sequence[str] = attr.ib(factory=list, converter=split_comma)
+
+    args = _test_parse(TestGenericOptionalFactory, ["--items", "1,2,3"])
+    assert args.items == ["1", "2", "3"]
+
+    args = _test_parse(TestGenericOptionalFactory, [])
+    assert args.items == []
+
+    @attr.s(auto_attribs=True)
+    class TestGenericOptionalDefault:
+        items: Sequence[str] = attr.ib(default="1,2,3", converter=split_comma)
+
+    args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
+    assert args.items == ["4", "5", "6"]
+
+    args = _test_parse(TestGenericOptionalFactory, [])
+    assert args.items == []
 
 
 def test_invalid_class():
