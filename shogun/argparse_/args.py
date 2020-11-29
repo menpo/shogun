@@ -1,7 +1,9 @@
 import dataclasses
-from typing import Sequence
+from typing import Callable, Optional, Sequence, TypeVar
 
 from shogun.utils import remove_dict_nones
+
+T = TypeVar("T")
 
 
 def arg(
@@ -12,6 +14,7 @@ def arg(
     help=None,
     metavar=None,
     aliases: Sequence[str] = (),
+    converter: Optional[Callable[[str], T]] = None,
     **kwargs,
 ):
     """
@@ -44,6 +47,7 @@ def arg(
                 help=help,
                 metavar=metavar,
                 aliases=aliases,
+                converter=converter,
             )
         ),
         default=default,
