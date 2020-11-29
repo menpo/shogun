@@ -1,7 +1,7 @@
-from typing import List, Sequence, TYPE_CHECKING, Type
+from collections import defaultdict
+from typing import Dict, Iterable, List, Sequence, TYPE_CHECKING, Type
 
 from shogun.argparse_.action import FieldAction
-from .default import DispatcherDefault
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
@@ -10,16 +10,22 @@ if TYPE_CHECKING:
 
 class TypeRegistry:
     # Intentionally static
-    dispatch: List[Type["DispatcherBase"]] = []
+    _dispatch: Dict[int, List[Type["DispatcherBase"]]] = defaultdict(list)
+
+    @classmethod
+    def dispatchers(cls) -> Iterable[Type["DispatcherBase"]]:
+        for priority, dispatchers in sorted(cls._dispatch.items()):
+            for dispatcher in dispatchers:
+                yield dispatcher
 
     @classmethod
     def build_actions(cls, field: "RecordField") -> Sequence[FieldAction]:
-        for dispatcher in cls.dispatch:
+        for dispatcher in cls.dispatchers():
             if dispatcher.is_type(field.type):
                 return dispatcher.build_actions(field)
 
-        return (DispatcherDefault.build_action(field),)
+        raise ValueError(f"Unexpected type for field: {field.type}")
 
     @classmethod
     def register(cls, dispatcher_type: Type["DispatcherBase"]) -> None:
-        cls.dispatch.append(dispatcher_type)
+        cls._dispatch[dispatcher_type.priority].append(dispatcher_type)

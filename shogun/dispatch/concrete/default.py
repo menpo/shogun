@@ -1,16 +1,22 @@
-from typing import Any, TYPE_CHECKING
+import sys
+from typing import Any, Sequence, TYPE_CHECKING, Type
 
 from shogun.argparse_.action import FieldAction
 from shogun.argparse_.utils import common_kwargs
+from shogun.dispatch.base import DispatcherBase
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
 
 
-# Note this doesn't inherit from the dispatch base because we don't want to
-# register this class otherwise the order of imports determines the order of
-# dispatch parsing
-class DispatcherDefault:
+class DispatcherDefault(DispatcherBase):
+    # Should always be last
+    priority: int = sys.maxsize
+
+    @classmethod
+    def is_type(cls, field_type: Type) -> bool:
+        return True
+
     @classmethod
     def build_action(cls, field: "RecordField", **kwargs: Any) -> FieldAction:
         kwargs = {
@@ -23,3 +29,7 @@ class DispatcherDefault:
             field,
             kwargs=kwargs,
         )
+
+    @classmethod
+    def build_actions(cls, field: "RecordField") -> Sequence[FieldAction]:
+        return [cls.build_action(field)]

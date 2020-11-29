@@ -7,6 +7,8 @@ except ImportError:
 else:
 
     class DispatcherIsAttrs(DispatcherIsRecordClass):
+        priority: int = 1
+
         @classmethod
         def is_type(cls, field_type: type) -> bool:
             return attr.has(field_type)

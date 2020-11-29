@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
-from ...argparse_.utils import common_kwargs
-from ...utils import filter_dict
 from shogun.argparse_.action import FieldAction
+from shogun.argparse_.utils import common_kwargs
+from shogun.utils import filter_dict
 from ..base import DispatcherIsSubclass
 
 if TYPE_CHECKING:
@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 
 class DispatcherBool(DispatcherIsSubclass):
+    priority: int = 1
     type_ = bool
 
     @classmethod
