@@ -4,6 +4,7 @@ from typing import Any, Generic, List, Mapping, Optional, Type, TypeVar
 
 from .error import NotARecordClass
 
+T = TypeVar("T")
 FieldType = TypeVar("FieldType")
 
 
@@ -12,7 +13,7 @@ class DatargsParams:
         self.parser = parser or {}
 
 
-class RecordField(Generic[FieldType]):
+class RecordField(Generic[FieldType, T], metaclass=ABCMeta):
     """
     Abstract base class for fields of dataclasses or attrs classes.
     """
@@ -29,32 +30,37 @@ class RecordField(Generic[FieldType]):
         """
         pass
 
+    @property
+    @abstractmethod
+    def default(self) -> T:
+        pass
+
+    @property
+    @abstractmethod
+    def converter(self):
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def type(self) -> Type[T]:
+        pass
+
+    @property
+    @abstractmethod
+    def metadata(self) -> Mapping[str, Any]:
+        pass
+
     def has_default(self) -> bool:
         """
         Helper method to indicate whether a field has a default value.
         Used to make intention clearer in call sites.
         """
         return not self.is_required()
-
-    @property
-    def default(self):
-        return self.field.default
-
-    @property
-    def name(self):
-        return self.field.name
-
-    @property
-    def type(self):
-        return self.field.type
-
-    @property
-    def metadata(self):
-        return self.field.metadata
-
-    @property
-    def is_positional(self) -> bool:
-        return False
 
 
 class RecordClass(Generic[FieldType], metaclass=ABCMeta):
@@ -69,12 +75,12 @@ class RecordClass(Generic[FieldType], metaclass=ABCMeta):
     field_wrapper_type: Type[RecordField]
     _implementors: List[Type["RecordClass"]] = []
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__()
         if not inspect.isabstract(cls):
             cls._implementors.append(cls)
 
-    def __init__(self, cls):
+    def __init__(self, cls) -> None:
         self.cls: type = cls
 
     @property
@@ -82,15 +88,15 @@ class RecordClass(Generic[FieldType], metaclass=ABCMeta):
         return getattr(self.cls, "__datargs_params__", DatargsParams())
 
     @property
-    def parser_params(self):
+    def parser_params(self) -> Mapping[str, Any]:
         return self.datargs_params.parser
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.cls.__name__
 
     @abstractmethod
-    def fields_dict(self) -> Mapping[str, FieldType]:
+    def fields_dict(self) -> Mapping[str, RecordField]:
         """
         Returns a mapping of field names to field wrapper classes.
         """
@@ -120,7 +126,7 @@ class RecordClass(Generic[FieldType], metaclass=ABCMeta):
         )
 
     @classmethod
-    def get_field(cls, field: FieldType):
+    def get_field(cls, field: FieldType) -> RecordField:
         """
         Wrap field with field classes with a uniform interface.
         """
