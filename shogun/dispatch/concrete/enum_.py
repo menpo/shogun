@@ -4,13 +4,15 @@ from typing import TYPE_CHECKING
 
 from shogun.argparse_.action import FieldAction
 from shogun.dispatch.base import DispatcherIsSubclass
-from shogun.dispatch.default import DispatcherDefault
+from shogun.dispatch.concrete.default import DispatcherDefault
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
 
 
 class DispatcherEnum(DispatcherIsSubclass):
+    priority: int = 1
+
     type_ = Enum
 
     @classmethod
