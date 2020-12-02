@@ -39,7 +39,6 @@ def build_record_instance_from_parsed_args(
 
 
 def make_parser(cls, parser: Optional[ArgumentParser] = None) -> ArgumentParser:
-    # noinspection PyShadowingNames
     """
     Create parser that parses command-line arguments according to the fields of `cls`.
     Use this if you want to do anything with the parser other than immediately parsing the command-line arguments.
@@ -48,14 +47,14 @@ def make_parser(cls, parser: Optional[ArgumentParser] = None) -> ArgumentParser:
     :param parser: parser to add arguments to, by default creates a new parser
     :return: instance of `parser_cls` which parses command line according to `cls`
 
+    >>> import dataclasses
     >>> @dataclasses.dataclass
     ... class Args:
     ...     first_arg: int
     >>> parse(Args, ["--first-arg", "0"])
     Args(first_arg=0)
     >>> parser = make_parser(Args)
-    >>> parser.add_argument("--second-arg", type=float) # doctest: +ELLIPSIS
-    [...]
+    >>> _ = parser.add_argument("--second-arg", type=float)
     >>> parser.parse_args(["--first-arg", "0", "--second-arg", "1.5"])
     Namespace(first_arg=0, second_arg=1.5)
     """
@@ -92,6 +91,7 @@ def parse(
     :param args: arguments to parse (default: `sys.arg`)
     :return: an instance of cls
 
+    >>> import dataclasses
     >>> @dataclasses.dataclass
     ... class Args:
     ...     is_flag: bool

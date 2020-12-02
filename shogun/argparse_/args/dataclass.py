@@ -20,6 +20,7 @@ def dc_arg(
     """
     Helper method to more easily add parsing-related behavior.
     Supports aliases:
+    >>> from shogun import make_parser, parse
     >>> @dataclasses.dataclass
     ... class Args:
     ...     num: int = dc_arg(aliases=["-n"])
