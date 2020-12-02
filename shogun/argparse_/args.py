@@ -6,7 +6,7 @@ from shogun.utils import remove_dict_nones
 T = TypeVar("T")
 
 
-def arg(
+def dc_arg(
     nargs=None,
     const=None,
     default=dataclasses.MISSING,
@@ -22,7 +22,7 @@ def arg(
     Supports aliases:
     >>> @dataclasses.dataclass
     ... class Args:
-    ...     num: int = arg(aliases=["-n"])
+    ...     num: int = dc_arg(aliases=["-n"])
     >>> parse(Args, ["--num", "0"])
     Args(num=0)
     >>> parse(Args, ["-n", "0"])
@@ -31,7 +31,7 @@ def arg(
     Accepts all arguments to both `ArgumentParser.add_argument` and `dataclass.field`:
     >>> @dataclasses.dataclass
     ... class Args:
-    ...     invisible_arg: int = arg(default=0, repr=False, metavar="MY_ARG", help="argument description")
+    ...     invisible_arg: int = dc_arg(default=0, repr=False, metavar="MY_ARG", help="argument description")
     >>> print(Args())
     Args()
     >>> make_parser(Args).print_help() # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE

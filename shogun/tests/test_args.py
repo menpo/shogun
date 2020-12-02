@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from shogun import arg, make_parser, parse
+from shogun import dc_arg, make_parser, parse
 from shogun.argparse_.parser import NoExitArgumentParser
 
 
@@ -17,7 +17,7 @@ def test_help():
 
     @dataclass
     class Args:
-        flag: bool = arg(help="helpful message")
+        flag: bool = dc_arg(help="helpful message")
 
     args = parse(Args, [])
     assert not args.flag
@@ -31,7 +31,7 @@ def test_help():
 def test_decorator_no_args():
     @dataclass
     class Args:
-        flag: bool = arg(help="helpful message")
+        flag: bool = dc_arg(help="helpful message")
 
     assert not parse(Args, []).flag
 
@@ -39,7 +39,7 @@ def test_decorator_no_args():
 def test_decorator_with_args():
     @dataclass(repr=True)
     class Args:
-        flag: bool = arg(help="helpful message")
+        flag: bool = dc_arg(help="helpful message")
 
     assert not parse(Args, []).flag
 
@@ -47,7 +47,7 @@ def test_decorator_with_args():
 def test_dataclass_with_args():
     @dataclass
     class Args:
-        x: int = arg(default=0)
+        x: int = dc_arg(default=0)
 
     assert Args().x == 0
 
@@ -55,7 +55,7 @@ def test_dataclass_with_args():
 def test_default():
     @dataclass
     class Args:
-        x: int = arg(default=0)
+        x: int = dc_arg(default=0)
 
     assert Args().x == 0
 
@@ -63,7 +63,7 @@ def test_default():
 def test_alias():
     @dataclass
     class Args:
-        num: int = arg(aliases=["-n"])
+        num: int = dc_arg(aliases=["-n"])
 
     args = parse(Args, ["-n", "0"])
     assert args.num == 0

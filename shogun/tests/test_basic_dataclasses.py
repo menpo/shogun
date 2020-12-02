@@ -11,7 +11,7 @@ import attr
 import pytest
 from typing_extensions import Literal
 
-from shogun import arg, argsclass, make_parser
+from shogun import argsclass, dc_arg, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
 from shogun.tests.utils import _test_parse
@@ -203,7 +203,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericRequired:
-        items: Sequence[str] = arg(converter=split_comma)
+        items: Sequence[str] = dc_arg(converter=split_comma)
 
     with pytest.raises(ParserError):
         _test_parse(TestGenericRequired, [])
@@ -213,7 +213,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericOptionalFactory:
-        items: Sequence[str] = arg(default_factory=list, converter=split_comma)
+        items: Sequence[str] = dc_arg(default_factory=list, converter=split_comma)
 
     args = _test_parse(TestGenericOptionalFactory, ["--items", "1,2,3"])
     assert args.items == ["1", "2", "3"]
@@ -223,7 +223,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericOptionalDefault:
-        items: Sequence[str] = arg(default="1,2,3", converter=split_comma)
+        items: Sequence[str] = dc_arg(default="1,2,3", converter=split_comma)
 
     args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
     assert args.items == ["4", "5", "6"]
