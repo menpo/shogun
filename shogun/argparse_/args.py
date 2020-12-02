@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Callable, Optional, Sequence, TypeVar
+from typing import Any, Callable, Optional, Sequence, TypeVar, Union
 
 from shogun.utils import remove_dict_nones
 
@@ -7,15 +7,15 @@ T = TypeVar("T")
 
 
 def dc_arg(
-    nargs=None,
-    const=None,
-    default=dataclasses.MISSING,
-    choices=None,
-    help=None,
-    metavar=None,
+    nargs: Optional[Union[str, int]] = None,
+    const: Optional[T] = None,
+    default: Union[dataclasses._MISSING_TYPE, T] = dataclasses.MISSING,
+    choices: Optional[Sequence[T]] = None,
+    help: Optional[str] = None,
+    metavar: Optional[str] = None,
     aliases: Sequence[str] = (),
     converter: Optional[Callable[[str], T]] = None,
-    **kwargs,
+    **kwargs: Any,
 ):
     """
     Helper method to more easily add parsing-related behavior.
