@@ -1,8 +1,9 @@
-import dataclasses
 from typing import Sequence, TYPE_CHECKING, Type
 
+import dataclasses
+
 from shogun.argparse_.action import FieldAction
-from shogun.dispatch.base import DispatcherBase
+from shogun.dispatch.base import DispatchPriority, DispatcherBase
 from shogun.dispatch.concrete.default import DispatcherDefault
 from shogun.generics import get_generic_origin
 
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class DispatcherGenericContainer(DispatcherBase):
-    priority: int = 2
+    priority: int = DispatchPriority.GENERIC_CONTAINERS
 
     @classmethod
     def is_type(cls, field_type: Type) -> bool:

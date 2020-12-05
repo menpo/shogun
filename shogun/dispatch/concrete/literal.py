@@ -4,7 +4,7 @@ from typing import Sequence, TYPE_CHECKING
 from typing_extensions import Literal
 
 from shogun.argparse_.action import FieldAction
-from shogun.dispatch.base import DispatcherBase
+from shogun.dispatch.base import DispatchPriority, DispatcherBase
 from shogun.dispatch.concrete.default import DispatcherDefault
 from shogun.generics import get_generic_args, get_generic_origin
 from shogun.utils import IS_PYTHON_36
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class DispatcherLiteral(DispatcherBase):
-    priority: int = 1
+    priority: int = DispatchPriority.SIMPLE_TYPES
 
     @classmethod
     def is_type(cls, field_type: type) -> bool:

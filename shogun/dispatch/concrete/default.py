@@ -1,9 +1,8 @@
-import sys
 from typing import Any, Sequence, TYPE_CHECKING, Type
 
 from shogun.argparse_.action import FieldAction
 from shogun.argparse_.utils import common_kwargs
-from shogun.dispatch.base import DispatcherBase
+from shogun.dispatch.base import DispatchPriority, DispatcherBase
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
@@ -11,7 +10,7 @@ if TYPE_CHECKING:
 
 class DispatcherDefault(DispatcherBase):
     # Should always be last
-    priority: int = sys.maxsize
+    priority: int = DispatchPriority.LOWEST
 
     @classmethod
     def is_type(cls, field_type: Type) -> bool:
