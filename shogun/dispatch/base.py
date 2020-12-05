@@ -1,10 +1,18 @@
 import inspect
 from abc import ABCMeta, abstractmethod
+from enum import IntEnum, auto
 from typing import Sequence, Type
 
 from shogun.argparse_.action import FieldAction
 from shogun.dispatch.registry import TypeRegistry
 from shogun.records.generic import RecordField
+
+
+class DispatchPriority(IntEnum):
+    LOWEST = auto()
+    GENERIC_CONTAINERS = auto()
+    SIMPLE_TYPES = auto()
+    USER_HIGH_PRIORITY = auto()
 
 
 class DispatcherBase(metaclass=ABCMeta):
@@ -15,9 +23,14 @@ class DispatcherBase(metaclass=ABCMeta):
      1. Priority
      2. Order added into priority list
 
-    Priority is determined as closest to 1 is highest priority e.g
+    Priority is determined by integer ordering (highest to lowest, >= 0) e.g
 
-        1 > 2 > 3 ...
+        3 classes with priorities (0, 1, 2) respectively
+
+        Dispatched:
+            First priority 2
+            Next priority 1
+            Last priority 0
     """
 
     priority: int
@@ -29,6 +42,9 @@ class DispatcherBase(metaclass=ABCMeta):
                 raise TypeError(
                     f"{cls.__name__} must define 'priority' class attribute"
                 )
+            if cls.priority < 0:
+                raise TypeError(f"{cls.__name__} must define a priority >= 0")
+
             TypeRegistry.register(cls)
 
     @classmethod

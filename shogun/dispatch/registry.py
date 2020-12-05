@@ -14,7 +14,7 @@ class TypeRegistry:
 
     @classmethod
     def dispatchers(cls) -> Iterable[Type["DispatcherBase"]]:
-        for priority, dispatchers in sorted(cls._dispatch.items()):
+        for priority, dispatchers in sorted(cls._dispatch.items(), reverse=True):
             for dispatcher in dispatchers:
                 yield dispatcher
 

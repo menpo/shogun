@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 from shogun.argparse_.action import FieldAction
 from shogun.argparse_.utils import common_kwargs
 from shogun.utils import filter_dict
-from ..base import DispatcherIsSubclass
+from ..base import DispatchPriority, DispatcherIsSubclass
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
 
 
 class DispatcherBool(DispatcherIsSubclass):
-    priority: int = 1
+    priority: int = DispatchPriority.SIMPLE_TYPES
     type_ = bool
 
     @classmethod

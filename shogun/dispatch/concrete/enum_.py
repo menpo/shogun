@@ -3,7 +3,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from shogun.argparse_.action import FieldAction
-from shogun.dispatch.base import DispatcherIsSubclass
+from shogun.dispatch.base import DispatchPriority, DispatcherIsSubclass
 from shogun.dispatch.concrete.default import DispatcherDefault
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class DispatcherEnum(DispatcherIsSubclass):
-    priority: int = 1
+    priority: int = DispatchPriority.SIMPLE_TYPES
 
     type_ = Enum
 
