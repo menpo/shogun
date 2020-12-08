@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from collections import OrderedDict, deque
 from typing import Any, Dict, Optional, Sequence, Type, TypeVar
 
-from shogun.dispatch import TypeRegistry
+from shogun.dispatch.registry import GlobalRegistry
 from shogun.records.generic import RecordClass
 
 T = TypeVar("T")
@@ -70,7 +70,7 @@ def _make_parser(
 
     for name, field in record_class.fields_dict().items():
         # TODO: Add argument groups for dataclasses (as they are nested)
-        actions = TypeRegistry.build_actions(field)
+        actions = GlobalRegistry.build_actions(field)
         for action in actions:
             parser.add_argument(*action.aliases, **action.kwargs)
 

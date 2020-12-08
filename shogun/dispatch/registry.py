@@ -1,5 +1,6 @@
-from collections import defaultdict
 from typing import Dict, Iterable, List, Sequence, TYPE_CHECKING, Type
+
+import dataclasses
 
 from shogun.argparse_.action import FieldAction
 
@@ -8,24 +9,37 @@ if TYPE_CHECKING:
     from .base import DispatcherBase
 
 
+@dataclasses.dataclass(frozen=True)
 class TypeRegistry:
-    # Intentionally static
-    _dispatch: Dict[int, List[Type["DispatcherBase"]]] = defaultdict(list)
+    _dispatch: Dict[int, List[Type["DispatcherBase"]]] = dataclasses.field(
+        init=False, default_factory=dict
+    )
 
-    @classmethod
-    def dispatchers(cls) -> Iterable[Type["DispatcherBase"]]:
-        for priority, dispatchers in sorted(cls._dispatch.items(), reverse=True):
+    def dispatchers(self) -> Iterable[Type["DispatcherBase"]]:
+        for priority, dispatchers in sorted(self._dispatch.items(), reverse=True):
             for dispatcher in dispatchers:
                 yield dispatcher
 
-    @classmethod
-    def build_actions(cls, field: "RecordField") -> Sequence[FieldAction]:
-        for dispatcher in cls.dispatchers():
+    def build_actions(self, field: "RecordField") -> Sequence[FieldAction]:
+        for dispatcher in self.dispatchers():
             if dispatcher.is_type(field.type):
                 return dispatcher.build_actions(field)
 
         raise ValueError(f"Unexpected type for field: {field.type}")
 
-    @classmethod
-    def register(cls, dispatcher_type: Type["DispatcherBase"]) -> None:
-        cls._dispatch[dispatcher_type.priority].append(dispatcher_type)
+    def register(self, dispatcher_type: Type["DispatcherBase"]) -> None:
+        self._dispatch.setdefault(dispatcher_type.priority, []).append(dispatcher_type)
+
+    def deregister(self, dispatcher_type: Type["DispatcherBase"]) -> None:
+        try:
+            self._dispatch.get(dispatcher_type.priority, []).remove(dispatcher_type)
+        except ValueError:
+            # Ignore if the type doesn't exist in the list
+            pass
+
+    def clear(self) -> None:
+        self._dispatch.clear()
+
+
+# Intentionally globally static
+GlobalRegistry = TypeRegistry()

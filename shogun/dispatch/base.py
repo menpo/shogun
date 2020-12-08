@@ -4,7 +4,7 @@ from enum import IntEnum, auto
 from typing import Sequence, Type
 
 from shogun.argparse_.action import FieldAction
-from shogun.dispatch.registry import TypeRegistry
+from shogun.dispatch.registry import GlobalRegistry
 from shogun.records.generic import RecordField
 
 
@@ -45,7 +45,7 @@ class DispatcherBase(metaclass=ABCMeta):
             if cls.priority < 0:
                 raise TypeError(f"{cls.__name__} must define a priority >= 0")
 
-            TypeRegistry.register(cls)
+            GlobalRegistry.register(cls)
 
     @classmethod
     @abstractmethod
