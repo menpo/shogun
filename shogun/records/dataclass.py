@@ -1,5 +1,6 @@
-import dataclasses
 from typing import Any, Callable, Mapping, Optional, Type, TypeVar, cast
+
+import dataclasses
 
 from shogun.records.generic import RecordClass, RecordField
 
@@ -22,10 +23,6 @@ class DataField(RecordField[dataclasses.Field, T]):
             return default_factory()
         else:
             return self.field.default
-
-    @property
-    def converter(self) -> Optional[Callable[[str], T]]:
-        return self.field.metadata.get("converter")
 
     @property
     def name(self) -> str:

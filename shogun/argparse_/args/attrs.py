@@ -22,7 +22,7 @@ else:
         help: Optional[str] = None,
         metavar: Optional[str] = None,
         aliases: Sequence[str] = (),
-        converter: Optional[Callable[[str], T]] = None,
+        argparse_parse: Optional[Callable[[str], T]] = None,
         **kwargs: Any,
     ):
         """
@@ -56,9 +56,9 @@ else:
                     help=help,
                     metavar=metavar,
                     aliases=aliases,
+                    argparse_parse=argparse_parse,
                 )
             ),
             default=default,
-            converter=converter,
             **kwargs,
         )

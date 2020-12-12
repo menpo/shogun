@@ -20,21 +20,15 @@ class DispatcherGenericContainer(DispatcherBase):
 
     @classmethod
     def build_actions(cls, field: "RecordField") -> Sequence[FieldAction]:
-        if field.converter is None:
+        if field.argparse_parse is None:
             raise ValueError(
                 "Generic container types cannot be automatically parsed and "
-                "must be parsed using a 'convert' method"
+                "must be parsed using an 'argparse_parse' method"
             )
-
-        # Here we have to do something different for dataclasses because they
-        # don't natively support converter methods like attr.s classes do
-        field_type = str
-        if isinstance(field.field, dataclasses.Field):
-            field_type = field.converter
 
         return [
             DispatcherDefault.build_action(
                 field,
-                type=field_type,
+                type=field.type_converter,
             )
         ]

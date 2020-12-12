@@ -1,4 +1,4 @@
-from typing import Any, Callable, Mapping, Optional, Type, TypeVar
+from typing import Any, Mapping, Type, TypeVar
 
 from .generic import RecordClass, RecordField
 
@@ -23,10 +23,6 @@ else:
                     raise ValueError("takes_self currently not supported")
                 default = default.factory()
             return default
-
-        @property
-        def converter(self) -> Optional[Callable[[str], T]]:
-            return self.field.converter
 
         @property
         def name(self) -> str:

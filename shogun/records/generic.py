@@ -1,6 +1,6 @@
 import inspect
 from abc import ABCMeta, abstractmethod
-from typing import Any, Generic, List, Mapping, Optional, Type, TypeVar
+from typing import Any, Callable, Generic, List, Mapping, Optional, Type, TypeVar
 
 from .error import NotARecordClass
 
@@ -37,11 +37,6 @@ class RecordField(Generic[FieldType, T], metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def converter(self):
-        pass
-
-    @property
-    @abstractmethod
     def name(self) -> str:
         pass
 
@@ -54,6 +49,17 @@ class RecordField(Generic[FieldType, T], metaclass=ABCMeta):
     @abstractmethod
     def metadata(self) -> Mapping[str, Any]:
         pass
+
+    @property
+    def argparse_parse(self) -> Optional[Callable[[str], T]]:
+        return self.metadata.get("argparse_parse")
+
+    @property
+    def type_converter(self) -> Callable[[Any], T]:
+        if self.argparse_parse is not None:
+            return self.argparse_parse
+        else:
+            return self.type
 
     def has_default(self) -> bool:
         """
@@ -117,12 +123,15 @@ class RecordClass(Generic[FieldType], metaclass=ABCMeta):
         for candidate in cls._implementors:
             if candidate.can_wrap_class(record_class):
                 return candidate(record_class)
+
         if getattr(record_class, "__attrs_attrs__", None) is not None:
             raise NotARecordClass(
-                f"can't accept '{record_class.__name__}' because it is an attrs class and attrs is not installed"
+                f"Can't accept '{record_class.__name__}' because it is an attrs "
+                f"class and attrs is not installed"
             )
+
         raise NotARecordClass(
-            f"class '{record_class.__name__}' is not a dataclass nor an attrs class"
+            f"Class '{record_class.__name__}' is not a dataclass nor an attrs class"
         )
 
     @classmethod

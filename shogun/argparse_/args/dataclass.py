@@ -1,5 +1,6 @@
-import dataclasses
 from typing import Any, Callable, Optional, Sequence, TypeVar, Union
+
+import dataclasses
 
 from shogun.utils import remove_dict_nones
 
@@ -14,7 +15,7 @@ def dc_arg(
     help: Optional[str] = None,
     metavar: Optional[str] = None,
     aliases: Sequence[str] = (),
-    converter: Optional[Callable[[str], T]] = None,
+    argparse_parse: Optional[Callable[[str], T]] = None,
     **kwargs: Any,
 ):
     """
@@ -48,7 +49,7 @@ def dc_arg(
                 help=help,
                 metavar=metavar,
                 aliases=aliases,
-                converter=converter,
+                argparse_parse=argparse_parse,
             )
         ),
         default=default,

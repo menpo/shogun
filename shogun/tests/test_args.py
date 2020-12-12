@@ -97,7 +97,7 @@ def test_generic_type_converter_dc():
     @dataclass
     class Args:
         items: Sequence[str] = dc_arg(
-            default_factory=list, converter=lambda x: x.split(",")
+            default_factory=list, argparse_parse=lambda x: x.split(",")
         )
 
     args = parse(Args, ["--items", "1,2,3"])
@@ -107,7 +107,9 @@ def test_generic_type_converter_dc():
 def test_generic_type_converter_attrs():
     @attr.dataclass
     class Args:
-        items: Sequence[str] = attrs_arg(factory=list, converter=lambda x: x.split(","))
+        items: Sequence[str] = attrs_arg(
+            factory=list, argparse_parse=lambda x: x.split(",")
+        )
 
     args = parse(Args, ["--items", "1,2,3"])
     assert args.items == ["1", "2", "3"]

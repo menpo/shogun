@@ -28,6 +28,6 @@ class DispatcherEnum(DispatcherIsSubclass):
         return DispatcherDefault.build_action(
             field,
             type=enum_type_func,
-            choices=field.type,
+            choices=field.type_converter,
             metavar=f"{{{','.join(field.type.__members__)}}}",
         )

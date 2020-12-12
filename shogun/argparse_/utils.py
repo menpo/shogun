@@ -11,4 +11,7 @@ def field_name_to_arg_name(name: str, underscore_to_hyphen: bool = True) -> str:
 
 
 def common_kwargs(field: "RecordField"):
-    return {"type": field.type, **filter_dict(field.metadata, {"aliases", "converter"})}
+    return {
+        "type": field.type_converter,
+        **filter_dict(field.metadata, {"aliases", "argparse_parse"}),
+    }

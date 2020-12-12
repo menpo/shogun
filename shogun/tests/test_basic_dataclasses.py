@@ -3,12 +3,12 @@
 
 import uuid
 from contextlib import ExitStack as nullcontext
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Sequence
 
 import attr
 import pytest
+from dataclasses import dataclass, field
 from typing_extensions import Literal
 
 from shogun import argsclass, dc_arg, make_parser
@@ -203,7 +203,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericRequired:
-        items: Sequence[str] = dc_arg(converter=split_comma)
+        items: Sequence[str] = dc_arg(argparse_parse=split_comma)
 
     with pytest.raises(ParserError):
         _test_parse(TestGenericRequired, [])
@@ -213,7 +213,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericOptionalFactory:
-        items: Sequence[str] = dc_arg(default_factory=list, converter=split_comma)
+        items: Sequence[str] = dc_arg(default_factory=list, argparse_parse=split_comma)
 
     args = _test_parse(TestGenericOptionalFactory, ["--items", "1,2,3"])
     assert args.items == ["1", "2", "3"]
@@ -223,7 +223,7 @@ def test_dataclass_generic():
 
     @dataclass
     class TestGenericOptionalDefault:
-        items: Sequence[str] = dc_arg(default="1,2,3", converter=split_comma)
+        items: Sequence[str] = dc_arg(default="1,2,3", argparse_parse=split_comma)
 
     args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
     assert args.items == ["4", "5", "6"]
@@ -241,7 +241,7 @@ def test_attrs_generic():
 
     @attr.s(auto_attribs=True)
     class TestGenericRequired:
-        items: Sequence[str] = attr.ib(converter=split_comma)
+        items: Sequence[str] = attr.ib(metadata={"argparse_parse": split_comma})
 
     with pytest.raises(ParserError):
         _test_parse(TestGenericRequired, [])
@@ -251,7 +251,9 @@ def test_attrs_generic():
 
     @attr.s(auto_attribs=True)
     class TestGenericOptionalFactory:
-        items: Sequence[str] = attr.ib(factory=list, converter=split_comma)
+        items: Sequence[str] = attr.ib(
+            factory=list, metadata={"argparse_parse": split_comma}
+        )
 
     args = _test_parse(TestGenericOptionalFactory, ["--items", "1,2,3"])
     assert args.items == ["1", "2", "3"]
@@ -261,7 +263,9 @@ def test_attrs_generic():
 
     @attr.s(auto_attribs=True)
     class TestGenericOptionalDefault:
-        items: Sequence[str] = attr.ib(default="1,2,3", converter=split_comma)
+        items: Sequence[str] = attr.ib(
+            default="1,2,3", metadata={"argparse_parse": split_comma}
+        )
 
     args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
     assert args.items == ["4", "5", "6"]
