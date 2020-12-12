@@ -4,14 +4,14 @@
 import uuid
 from contextlib import ExitStack as nullcontext
 from enum import Enum
-from typing import Sequence
+from typing import Sequence, overload
 
 import attr
 import pytest
 from dataclasses import dataclass, field
 from typing_extensions import Literal
 
-from shogun import argsclass, dc_arg, make_parser
+from shogun import ShogunArgparseParse, argsclass, dc_arg, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
 from shogun.tests.utils import _test_parse
@@ -197,6 +197,50 @@ def test_dataclass_literal(factory):
         _test_parse(TestLiteralRequired, ["--arg", "c"])
 
 
+def test_shogun_argparse_parse_defined(factory):
+    class CommaSepString(Sequence[str], ShogunArgparseParse):
+        def __init__(self):
+            self._container: Sequence[str] = []
+
+        @overload
+        def __getitem__(self, idx: int) -> str:
+            ...
+
+        @overload
+        def __getitem__(self, s: slice) -> Sequence[str]:
+            ...
+
+        def __getitem__(self, item):
+            return self._container[item]
+
+        def __len__(self) -> int:
+            return len(self._container)
+
+        @classmethod
+        def __shogun_argparse_parse__(cls, value: str) -> Sequence[str]:
+            return value.split(",")
+
+    @factory
+    class TestRequired:
+        items: CommaSepString
+
+    with pytest.raises(ParserError):
+        _test_parse(TestRequired, [])
+
+    args = _test_parse(TestRequired, ["--items", "1,2,3"])
+    assert args.items == ["1", "2", "3"]
+
+    @factory
+    class TestOptionalDefault:
+        items: CommaSepString = "1,2,3"
+
+    args = _test_parse(TestOptionalDefault, ["--items", "4,5,6"])
+    assert args.items == ["4", "5", "6"]
+
+    args = _test_parse(TestOptionalDefault, [])
+    assert args.items == ["1", "2", "3"]
+
+
 def test_dataclass_generic():
     def split_comma(x):
         return x.split(",")
@@ -228,8 +272,8 @@ def test_dataclass_generic():
     args = _test_parse(TestGenericOptionalDefault, ["--items", "4,5,6"])
     assert args.items == ["4", "5", "6"]
 
-    args = _test_parse(TestGenericOptionalFactory, [])
-    assert args.items == []
+    args = _test_parse(TestGenericOptionalDefault, [])
+    assert args.items == ["1", "2", "3"]
 
 
 def test_attrs_generic():

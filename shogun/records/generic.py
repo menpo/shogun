@@ -1,7 +1,8 @@
 import inspect
 from abc import ABCMeta, abstractmethod
-from typing import Any, Callable, Generic, List, Mapping, Optional, Type, TypeVar
+from typing import Any, Callable, Generic, List, Mapping, Optional, Type, TypeVar, cast
 
+from shogun.argparse_.protocol import ShogunArgparseParse
 from .error import NotARecordClass
 
 T = TypeVar("T")
@@ -51,6 +52,10 @@ class RecordField(Generic[FieldType, T], metaclass=ABCMeta):
         pass
 
     @property
+    def has_shogun_argparse_parse(self) -> bool:
+        return isinstance(self.type, ShogunArgparseParse)
+
+    @property
     def argparse_parse(self) -> Optional[Callable[[str], T]]:
         return self.metadata.get("argparse_parse")
 
@@ -58,6 +63,9 @@ class RecordField(Generic[FieldType, T], metaclass=ABCMeta):
     def type_converter(self) -> Callable[[Any], T]:
         if self.argparse_parse is not None:
             return self.argparse_parse
+        elif self.has_shogun_argparse_parse:
+            # Cast required to satisfy mypy
+            return cast(ShogunArgparseParse, self.type).__shogun_argparse_parse__
         else:
             return self.type
 

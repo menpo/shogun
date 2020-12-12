@@ -5,5 +5,14 @@ from ._version import __version__
 from .argparse_.args import *
 from .argparse_.argsclass import argsclass
 from .argparse_.parse import make_parser, parse
+from .argparse_.protocol import ShogunArgparseParse
 
-__all__ = ["attrs_arg", "dc_arg", "argsclass", "make_parser", "parse", "__version__"]
+__all__ = [
+    "ShogunArgparseParse",
+    "__version__",
+    "argsclass",
+    "attrs_arg",
+    "dc_arg",
+    "make_parser",
+    "parse",
+]

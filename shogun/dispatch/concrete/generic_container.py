@@ -20,7 +20,7 @@ class DispatcherGenericContainer(DispatcherBase):
 
     @classmethod
     def build_actions(cls, field: "RecordField") -> Sequence[FieldAction]:
-        if field.argparse_parse is None:
+        if field.argparse_parse is None and not field.has_shogun_argparse_parse:
             raise ValueError(
                 "Generic container types cannot be automatically parsed and "
                 "must be parsed using an 'argparse_parse' method"
