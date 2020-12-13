@@ -1,10 +1,14 @@
 from argparse import ArgumentTypeError
-from typing import Sequence, TYPE_CHECKING
+from typing import Any, Sequence, TYPE_CHECKING
 
 from typing_extensions import Literal
 
 from shogun.argparse_.action import FieldAction
-from shogun.dispatch.base import DispatchPriority, DispatcherBase
+from shogun.dispatch.base import (
+    CORE_SERIALIZABLE_TYPES,
+    DispatchPriority,
+    DispatcherBase,
+)
 from shogun.dispatch.concrete.default import DispatcherDefault
 from shogun.generics import get_generic_args, get_generic_origin
 from shogun.utils import IS_PYTHON_36
@@ -47,3 +51,10 @@ class DispatcherLiteral(DispatcherBase):
                 metavar=f"{{{','.join(literal_values)}}}",
             )
         ]
+
+    @classmethod
+    def as_serializable(cls, value: Any) -> Any:
+        if type(value) in CORE_SERIALIZABLE_TYPES:
+            return value
+        else:
+            return str(value)

@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List, Sequence
+from typing import Any, List, Sequence
 
 from shogun.argparse_.action import FieldAction
 from shogun.dispatch.base import DispatcherBase
@@ -26,3 +26,18 @@ class DispatcherIsRecordClass(DispatcherBase, ABC):
             actions.extend(sub_actions)
 
         return actions
+
+    @classmethod
+    def as_serializable(cls, value: Any) -> Any:
+        # Avoid circular import
+        from shogun.serialize.serialize import as_serializable_dict
+
+        if hasattr(value, "__getstate__"):
+            # Avoid circular import
+            from shogun.dispatch.concrete.generic_container import (
+                DispatcherGenericContainer,
+            )
+
+            return DispatcherGenericContainer.as_serializable(value.__getstate__())
+        else:
+            return as_serializable_dict(value)

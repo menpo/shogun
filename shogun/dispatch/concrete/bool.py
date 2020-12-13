@@ -25,3 +25,7 @@ class DispatcherBool(DispatcherIsSubclass):
             field=field,
             kwargs=kwargs,
         )
+
+    @classmethod
+    def as_serializable(cls, value: bool) -> bool:
+        return value

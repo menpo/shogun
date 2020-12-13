@@ -1,11 +1,13 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum, auto
-from typing import Sequence, Type
+from typing import Any, Sequence, Type
 
 from shogun.argparse_.action import FieldAction
 from shogun.dispatch.registry import GlobalRegistry
 from shogun.records.generic import RecordField
+
+CORE_SERIALIZABLE_TYPES = (str, bool, int, float)
 
 
 class DispatchPriority(IntEnum):
@@ -55,6 +57,11 @@ class DispatcherBase(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def build_actions(cls, field: RecordField) -> Sequence[FieldAction]:
+        ...
+
+    @classmethod
+    @abstractmethod
+    def as_serializable(cls, value: Any) -> Any:
         ...
 
 

@@ -31,3 +31,7 @@ class DispatcherEnum(DispatcherIsSubclass):
             choices=field.type_converter,
             metavar=f"{{{','.join(field.type.__members__)}}}",
         )
+
+    @classmethod
+    def as_serializable(cls, value: Enum) -> str:
+        return value.name

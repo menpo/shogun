@@ -43,11 +43,13 @@ setup(
     install_requires=install_requires,
     tests_require=[
         "attrs>=20",
+        "black>=20.0",
         "pytest>=5.0",
         "pytest-mock>=1.0",
         "pytest-black>=0.3",
         "pytest-cov>=2.0",
-        "black>=20.0",
+        "pyyaml",
+        "toml",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

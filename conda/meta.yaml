@@ -27,6 +27,8 @@ test:
     - pytest-cov
     - pytest-mock
     - pytest-mypy
+    - pyyaml
+    - toml
 
   files:
     - mypy.ini
