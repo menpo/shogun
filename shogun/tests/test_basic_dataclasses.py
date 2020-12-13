@@ -14,7 +14,9 @@ from typing_extensions import Literal
 from shogun import ShogunArgparseParse, argsclass, dc_arg, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
-from shogun.tests.utils import _test_parse, dataclass_factory
+
+# noinspection PyUnresolvedReferences
+from .utils import _test_parse, dataclass_factory
 
 
 @pytest.mark.parametrize(
@@ -106,6 +108,37 @@ def test_dataclass_nested_dataclass_optional(dataclass_factory, value, raises):
 
         assert result.argument == arg1_value
         assert result.room1.room_size == arg2_value
+
+
+def test_dataclass_double_nested(dataclass_factory):
+    @dataclass_factory
+    class Furniture:
+        name: str
+
+    @dataclass_factory
+    class Room:
+        room_size: int
+        furniture: Furniture = field(default_factory=Furniture)
+
+    @dataclass_factory
+    class House:
+        n_rooms: int
+        room1: Room = field(default_factory=Room)
+
+    result = _test_parse(
+        House,
+        [
+            "--n-rooms",
+            "1",
+            "--room1-room-size",
+            "3",
+            "--room1-furniture-name",
+            "bedroom",
+        ],
+    )
+    assert result.n_rooms == 1
+    assert result.room1.room_size == 3
+    assert result.room1.furniture.name == "bedroom"
 
 
 def test_dataclass_bool(dataclass_factory):

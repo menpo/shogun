@@ -10,18 +10,12 @@ from dataclasses import dataclass
 from shogun import attrs_arg, dc_arg, make_parser, parse
 from shogun.argparse_.parser import NoExitArgumentParser
 
-
-@pytest.fixture(
-    scope="module",
-    params=[(attr.dataclass, attrs_arg), (dataclass, dc_arg)],
-    ids=["attrs", "dataclasses"],
-)
-def factory(request):
-    return request.param
+# noinspection PyUnresolvedReferences
+from .utils import dataclass_field_factory
 
 
-def test_help(factory):
-    cls, arg = factory
+def test_help(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
     parser_help = "Program documentation"
     program = "My prog"
     parser = NoExitArgumentParser(description=parser_help, prog=program)
@@ -42,8 +36,8 @@ def test_help(factory):
     assert program in help_string
 
 
-def test_decorator_no_args(factory):
-    cls, arg = factory
+def test_decorator_no_args(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls
     class Args:
@@ -52,8 +46,8 @@ def test_decorator_no_args(factory):
     assert not parse(Args, []).flag
 
 
-def test_decorator_with_args(factory):
-    cls, arg = factory
+def test_decorator_with_args(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls(repr=True)
     class Args:
@@ -62,8 +56,8 @@ def test_decorator_with_args(factory):
     assert not parse(Args, []).flag
 
 
-def test_dataclass_with_args(factory):
-    cls, arg = factory
+def test_dataclass_with_args(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls
     class Args:
@@ -72,8 +66,8 @@ def test_dataclass_with_args(factory):
     assert Args().x == 0
 
 
-def test_default(factory):
-    cls, arg = factory
+def test_default(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls
     class Args:
@@ -82,8 +76,8 @@ def test_default(factory):
     assert Args().x == 0
 
 
-def test_alias(factory):
-    cls, arg = factory
+def test_alias(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls
     class Args:
@@ -115,8 +109,8 @@ def test_generic_type_converter_attrs():
     assert args.items == ["1", "2", "3"]
 
 
-def test_generic_type_no_converter(factory):
-    cls, arg = factory
+def test_generic_type_no_converter(dataclass_field_factory):
+    cls, arg = dataclass_field_factory
 
     @cls
     class Args:
