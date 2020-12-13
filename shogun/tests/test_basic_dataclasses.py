@@ -14,16 +14,7 @@ from typing_extensions import Literal
 from shogun import ShogunArgparseParse, argsclass, dc_arg, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
-from shogun.tests.utils import _test_parse
-
-
-@pytest.fixture(
-    scope="module",
-    params=[attr.dataclass, dataclass, argsclass],
-    ids=["attrs", None, None],
-)
-def factory(request):
-    return request.param
+from shogun.tests.utils import _test_parse, factory
 
 
 @pytest.mark.parametrize(
