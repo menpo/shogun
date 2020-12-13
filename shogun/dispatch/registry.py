@@ -20,12 +20,16 @@ class TypeRegistry:
             for dispatcher in dispatchers:
                 yield dispatcher
 
-    def build_actions(self, field: "RecordField") -> Sequence[FieldAction]:
+    def find_dispatcher(self, typ: Type) -> Type["DispatcherBase"]:
         for dispatcher in self.dispatchers():
-            if dispatcher.is_type(field.type):
-                return dispatcher.build_actions(field)
+            if dispatcher.is_type(typ):
+                return dispatcher
+        else:
+            raise ValueError(f"No dispatcher registered for type: {typ}")
 
-        raise ValueError(f"Unexpected type for field: {field.type}")
+    def build_actions(self, field: "RecordField") -> Sequence[FieldAction]:
+        dispatcher = self.find_dispatcher(field.type)
+        return dispatcher.build_actions(field)
 
     def register(self, dispatcher_type: Type["DispatcherBase"]) -> None:
         self._dispatch.setdefault(dispatcher_type.priority, []).append(dispatcher_type)
