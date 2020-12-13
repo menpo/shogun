@@ -19,5 +19,5 @@ def _test_parse(cls: Type[T], args: Sequence[str]) -> T:
     params=[attr.dataclass, dataclass, argsclass],
     ids=["attrs", None, None],
 )
-def factory(request):
+def dataclass_factory(request):
     return request.param

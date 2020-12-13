@@ -14,7 +14,7 @@ from typing_extensions import Literal
 from shogun import ShogunArgparseParse, argsclass, dc_arg, make_parser
 from shogun.argparse_.parser import ParserError
 from shogun.records.error import NotARecordClass
-from shogun.tests.utils import _test_parse, factory
+from shogun.tests.utils import _test_parse, dataclass_factory
 
 
 @pytest.mark.parametrize(
@@ -26,8 +26,8 @@ from shogun.tests.utils import _test_parse, factory
         (["--wrong-argument", 4.0], pytest.raises(ParserError)),
     ],
 )
-def test_dataclass_one_member_optional(factory, value, raises):
-    @factory
+def test_dataclass_one_member_optional(dataclass_factory, value, raises):
+    @dataclass_factory
     class OneMember:
         argument: float = 3.0
 
@@ -53,8 +53,8 @@ def test_dataclass_one_member_optional(factory, value, raises):
         (["--wrong-argument", 4.0], pytest.raises(ParserError)),
     ],
 )
-def test_dataclass_one_member_required(factory, value, raises):
-    @factory
+def test_dataclass_one_member_required(dataclass_factory, value, raises):
+    @dataclass_factory
     class OneMember:
         argument: float
 
@@ -83,12 +83,12 @@ def test_dataclass_one_member_required(factory, value, raises):
         (["--argument", 5.0, "--room-size", 4], pytest.raises(ParserError)),
     ],
 )
-def test_dataclass_nested_dataclass_optional(factory, value, raises):
-    @factory
+def test_dataclass_nested_dataclass_optional(dataclass_factory, value, raises):
+    @dataclass_factory
     class Interior:
         room_size: int = 3
 
-    @factory
+    @dataclass_factory
     class Nested:
         argument: float
         room1: Interior = field(default_factory=Interior)
@@ -108,8 +108,8 @@ def test_dataclass_nested_dataclass_optional(factory, value, raises):
         assert result.room1.room_size == arg2_value
 
 
-def test_dataclass_bool(factory):
-    @factory
+def test_dataclass_bool(dataclass_factory):
+    @dataclass_factory
     class TestStoreTrue:
         store_true: bool = False
 
@@ -118,7 +118,7 @@ def test_dataclass_bool(factory):
     args = _test_parse(TestStoreTrue, ["--store-true"])
     assert args.store_true
 
-    @factory
+    @dataclass_factory
     class TestStoreTrueNoDefault:
         store_true: bool
 
@@ -127,7 +127,7 @@ def test_dataclass_bool(factory):
     args = _test_parse(TestStoreTrueNoDefault, ["--store-true"])
     assert args.store_true
 
-    @factory
+    @dataclass_factory
     class TestStoreFalse:
         store_false: bool = True
 
@@ -137,12 +137,12 @@ def test_dataclass_bool(factory):
     assert not args.store_false
 
 
-def test_dataclass_enum(factory):
+def test_dataclass_enum(dataclass_factory):
     class TestEnum(Enum):
         a = 0
         b = 1
 
-    @factory
+    @dataclass_factory
     class TestEnumRequired:
         arg: TestEnum
 
@@ -152,7 +152,7 @@ def test_dataclass_enum(factory):
     args = _test_parse(TestEnumRequired, ["--arg", "a"])
     assert args.arg == TestEnum.a
 
-    @factory
+    @dataclass_factory
     class TestEnumOptional:
         arg: TestEnum = TestEnum.b
 
@@ -162,8 +162,8 @@ def test_dataclass_enum(factory):
     assert args.arg == TestEnum.b
 
 
-def test_dataclass_literal(factory):
-    @factory
+def test_dataclass_literal(dataclass_factory):
+    @dataclass_factory
     class TestLiteralRequired:
         arg: Literal["r", "b"]
 
@@ -174,7 +174,7 @@ def test_dataclass_literal(factory):
     args = _test_parse(TestLiteralRequired, ["--arg", value])
     assert args.arg == value
 
-    @factory
+    @dataclass_factory
     class TestLiteralOptional:
         arg: Literal["r", "b"] = value
 
@@ -188,7 +188,7 @@ def test_dataclass_literal(factory):
         _test_parse(TestLiteralRequired, ["--arg", "c"])
 
 
-def test_shogun_argparse_parse_defined(factory):
+def test_shogun_argparse_parse_defined(dataclass_factory):
     class CommaSepString(Sequence[str], ShogunArgparseParse):
         def __init__(self):
             self._container: Sequence[str] = []
@@ -211,7 +211,7 @@ def test_shogun_argparse_parse_defined(factory):
         def __shogun_argparse_parse__(cls, value: str) -> Sequence[str]:
             return value.split(",")
 
-    @factory
+    @dataclass_factory
     class TestRequired:
         items: CommaSepString
 
@@ -221,7 +221,7 @@ def test_shogun_argparse_parse_defined(factory):
     args = _test_parse(TestRequired, ["--items", "1,2,3"])
     assert args.items == ["1", "2", "3"]
 
-    @factory
+    @dataclass_factory
     class TestOptionalDefault:
         items: CommaSepString = "1,2,3"
 
