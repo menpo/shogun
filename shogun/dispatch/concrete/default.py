@@ -1,4 +1,4 @@
-from typing import Any, Sequence, TYPE_CHECKING, Type
+from typing import Any, Sequence, TYPE_CHECKING, Type, cast
 
 from shogun.argparse_.action import FieldAction
 from shogun.argparse_.utils import common_kwargs
@@ -7,6 +7,7 @@ from shogun.dispatch.base import (
     DispatchPriority,
     DispatcherBase,
 )
+from shogun.serialize.protocol import ShogunSerializable
 
 if TYPE_CHECKING:
     from shogun.records.generic import RecordField
@@ -41,12 +42,8 @@ class DispatcherDefault(DispatcherBase):
     def as_serializable(cls, value: Any) -> Any:
         if type(value) in CORE_SERIALIZABLE_TYPES:
             return value
-        elif hasattr(value, "__getstate__"):
-            # Avoid circular import
-            from shogun.dispatch.concrete.generic_container import (
-                DispatcherGenericContainer,
-            )
-
-            return DispatcherGenericContainer.as_serializable(value.__getstate__())
+        elif isinstance(value, ShogunSerializable):
+            # Cast required to satisfy mypy
+            return cast(ShogunSerializable, value).__shogun_serialize__(value)
         else:
             return str(value)

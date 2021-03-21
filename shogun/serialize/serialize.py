@@ -4,7 +4,7 @@ from shogun.dispatch.registry import GlobalRegistry
 from shogun.records.generic import RecordClass
 
 
-def as_serializable_dict(instance) -> Dict[str, Any]:
+def as_serializable_dict(instance: Any) -> Dict[str, Any]:
     instance_type = type(instance)
     record_class = RecordClass.wrap_class(instance_type)
 
@@ -14,3 +14,14 @@ def as_serializable_dict(instance) -> Dict[str, Any]:
         output[field.name] = dispatcher.as_serializable(getattr(instance, field.name))
 
     return output
+
+
+def from_serialized_dict(instance_type: Any, value: Dict[str, Any]) -> RecordClass:
+    from dacite import from_dict
+
+    # For every field on the type, use the dispatcher to find the correct deserialize method
+    # Then set the Config(type_hooks) such that each type matches to the deserialize
+    # method
+    record_class = RecordClass.wrap_class(instance_type)
+
+    return from_dict(instance_type, value)
